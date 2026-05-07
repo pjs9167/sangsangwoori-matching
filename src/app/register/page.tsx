@@ -1,15 +1,57 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { registerSenior } from "@/app/actions/senior";
+import type { RegisterState } from "@/app/actions/senior";
 
-const REGIONS = [
-  "서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종",
-  "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주",
-];
+const REGIONS = ["서울", "경기", "인천", "기타"];
+const JOB_TYPES = ["경비", "청소", "조리", "돌봄", "기타"];
+
+const inputCls =
+  "w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-xl bg-white focus:outline-none focus:border-blue-600";
+const labelCls = "text-xl font-semibold text-gray-800";
+const errorBoxCls =
+  "flex items-center gap-2 text-lg font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg px-4 py-2 mb-1";
 
 export default function RegisterPage() {
-  const [state, action, pending] = useActionState(registerSenior, null);
+  const [state, action, pending] = useActionState<RegisterState, FormData>(
+    registerSenior,
+    null
+  );
+
+  // 성공 화면
+  if (state && "success" in state && state.success) {
+    return (
+      <div className="max-w-xl mx-auto">
+        <h1 className="text-4xl font-bold mb-6 text-gray-900">프로필 등록</h1>
+        <div className="flex flex-col items-center gap-6 bg-green-50 border-2 border-green-400 rounded-xl px-8 py-10 text-center">
+          <p className="text-5xl">✅</p>
+          <p className="text-2xl font-bold text-green-800">등록이 완료되었습니다</p>
+          <p className="text-xl text-green-700">
+            자동 매칭이 완료됐습니다. 추천 목록에서 결과를 확인하세요.
+          </p>
+          <div className="flex gap-4 mt-2">
+            <Link
+              href="/recommendations"
+              className="bg-blue-700 hover:bg-blue-800 text-white text-xl font-bold px-6 py-3 rounded-xl transition-colors"
+            >
+              추천 목록 보기
+            </Link>
+            <Link
+              href="/register"
+              className="border-2 border-gray-400 hover:border-gray-600 text-gray-700 text-xl font-semibold px-6 py-3 rounded-xl transition-colors"
+            >
+              새로 등록하기
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const fieldErrors =
+    state && "fields" in state ? state.fields : ({} as Record<string, string>);
 
   return (
     <div className="max-w-xl mx-auto">
@@ -20,31 +62,30 @@ export default function RegisterPage() {
 
       <form action={action} className="flex flex-col gap-6">
         {/* 이름 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="name" className="text-xl font-semibold text-gray-800">
-            이름
+        <div className="flex flex-col gap-1">
+          {fieldErrors.name && (
+            <p className={errorBoxCls}>⚠ {fieldErrors.name}</p>
+          )}
+          <label htmlFor="name" className={labelCls}>
+            이름 <span className="text-red-500">*</span>
           </label>
           <input
             id="name"
             name="name"
             type="text"
-            required
-            className="border-2 border-gray-400 rounded-lg px-4 py-3 text-xl focus:outline-none focus:border-blue-600"
+            className={inputCls}
           />
         </div>
 
         {/* 지역 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="region" className="text-xl font-semibold text-gray-800">
-            지역
+        <div className="flex flex-col gap-1">
+          {fieldErrors.region && (
+            <p className={errorBoxCls}>⚠ {fieldErrors.region}</p>
+          )}
+          <label htmlFor="region" className={labelCls}>
+            지역 <span className="text-red-500">*</span>
           </label>
-          <select
-            id="region"
-            name="region"
-            required
-            defaultValue=""
-            className="border-2 border-gray-400 rounded-lg px-4 py-3 text-xl bg-white focus:outline-none focus:border-blue-600"
-          >
+          <select id="region" name="region" defaultValue="" className={inputCls}>
             <option value="" disabled>
               지역을 선택하세요
             </option>
@@ -57,24 +98,34 @@ export default function RegisterPage() {
         </div>
 
         {/* 희망 직종 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="desired_job" className="text-xl font-semibold text-gray-800">
-            희망 직종
+        <div className="flex flex-col gap-1">
+          {fieldErrors.desired_job && (
+            <p className={errorBoxCls}>⚠ {fieldErrors.desired_job}</p>
+          )}
+          <label htmlFor="desired_job" className={labelCls}>
+            희망 직종 <span className="text-red-500">*</span>
           </label>
-          <input
+          <select
             id="desired_job"
             name="desired_job"
-            type="text"
-            required
-            className="border-2 border-gray-400 rounded-lg px-4 py-3 text-xl focus:outline-none focus:border-blue-600"
-          />
-          <p className="text-lg text-gray-500">예: 경비, 청소, 배달, 사무, 요양 등</p>
+            defaultValue=""
+            className={inputCls}
+          >
+            <option value="" disabled>
+              직종을 선택하세요
+            </option>
+            {JOB_TYPES.map((j) => (
+              <option key={j} value={j}>
+                {j}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* 경력 연수 */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="career_years" className="text-xl font-semibold text-gray-800">
-            경력 연수
+        {/* 경력 */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="career_years" className={labelCls}>
+            경력 (년)
           </label>
           <input
             id="career_years"
@@ -82,25 +133,17 @@ export default function RegisterPage() {
             type="number"
             min={0}
             max={60}
-            required
             defaultValue={0}
-            className="border-2 border-gray-400 rounded-lg px-4 py-3 text-xl focus:outline-none focus:border-blue-600"
+            className={inputCls}
           />
         </div>
-
-        {/* 오류 메시지 */}
-        {state?.error && (
-          <p className="text-red-600 text-xl font-semibold bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-            ⚠ {state.error}
-          </p>
-        )}
 
         <button
           type="submit"
           disabled={pending}
           className="mt-2 w-full bg-blue-700 hover:bg-blue-800 active:bg-blue-900 disabled:bg-blue-400 text-white text-2xl font-bold py-4 rounded-xl transition-colors"
         >
-          {pending ? "매칭 중…" : "등록하기"}
+          {pending ? "등록 중…" : "등록하기"}
         </button>
       </form>
     </div>
