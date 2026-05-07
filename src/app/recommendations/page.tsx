@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { createClient } from "@supabase/supabase-js";
 import { SeniorSelector } from "./SeniorSelector";
 import type { MatchWithJob, Senior } from "@/types";
