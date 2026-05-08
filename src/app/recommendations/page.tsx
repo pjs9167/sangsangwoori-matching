@@ -11,6 +11,13 @@ function db() {
   );
 }
 
+function scoreLabel(score: number): string {
+  if (score === 6) return "매우 적합";
+  if (score >= 4) return "적합";
+  if (score >= 2) return "보통";
+  return "참고";
+}
+
 function ScoreBadge({ score }: { score: number }) {
   const cls =
     score === 6
@@ -19,9 +26,12 @@ function ScoreBadge({ score }: { score: number }) {
       ? "bg-green-100 text-green-800"
       : "bg-gray-100 text-gray-700";
   return (
-    <span className={`text-2xl font-bold px-4 py-1 rounded-full ${cls}`}>
-      {score}점
-    </span>
+    <div className="flex flex-col items-center gap-1">
+      <span className={`text-2xl font-bold px-4 py-1 rounded-full ${cls}`}>
+        {score}점
+      </span>
+      <span className="text-base font-semibold text-gray-500">{scoreLabel(score)}</span>
+    </div>
   );
 }
 
@@ -59,12 +69,17 @@ export default async function RecommendationsPage({
   const selected = (seniors ?? []).find((s: Senior) => s.id === senior_id);
   const hasMatches = matches.length > 0;
 
+  const pageTitle = selected
+    ? `${selected.name} 님께 맞는 일자리`
+    : "추천 일자리 목록";
+  const pageSubtitle = selected
+    ? "매칭 점수 높은 순으로 추천 일자리를 보여드립니다."
+    : "시니어를 선택하면 맞춤 일자리를 보여드립니다.";
+
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-2 text-gray-900">추천 일자리 목록</h1>
-      <p className="text-xl text-gray-600 mb-8">
-        매칭 점수 높은 순으로 추천 일자리를 보여드립니다.
-      </p>
+      <h1 className="text-4xl font-bold mb-2 text-gray-900">{pageTitle}</h1>
+      <p className="text-xl text-gray-600 mb-8">{pageSubtitle}</p>
 
       <SeniorSelector seniors={seniors ?? []} selectedId={senior_id} />
 
@@ -87,6 +102,7 @@ export default async function RecommendationsPage({
           <p className="text-3xl mb-3">📋</p>
           <p className="text-xl font-semibold">현재 매칭되는 일자리가 없습니다</p>
           <p className="text-lg mt-1">조건에 맞는 일자리가 등록되면 자동으로 표시됩니다.</p>
+          <p className="text-lg mt-1 text-blue-600 font-medium">담당자가 직접 연락드리니 잠시만 기다려 주세요.</p>
         </div>
       )}
 
@@ -101,9 +117,9 @@ export default async function RecommendationsPage({
       {hasMatches && (
         <div className="flex gap-3 mb-4 flex-wrap">
           <span className="text-lg text-gray-500 font-semibold self-center">점수:</span>
-          <span className="bg-yellow-400 text-yellow-900 text-base font-bold px-3 py-1 rounded-full">6점 — 최고</span>
-          <span className="bg-green-100 text-green-800 text-base font-bold px-3 py-1 rounded-full">4–5점 — 우수</span>
-          <span className="bg-gray-100 text-gray-700 text-base font-bold px-3 py-1 rounded-full">1–3점 — 참고</span>
+          <span className="bg-yellow-400 text-yellow-900 text-base font-bold px-3 py-1 rounded-full">6점 — 매우 적합</span>
+          <span className="bg-green-100 text-green-800 text-base font-bold px-3 py-1 rounded-full">4–5점 — 적합</span>
+          <span className="bg-gray-100 text-gray-700 text-base font-bold px-3 py-1 rounded-full">2–3점 — 보통</span>
         </div>
       )}
 
@@ -129,7 +145,7 @@ export default async function RecommendationsPage({
               </span>
             </div>
             <div className="ml-6 shrink-0 text-center">
-              <p className="text-lg text-gray-500 mb-1">매칭 점수</p>
+              <p className="text-lg text-gray-500 mb-2">매칭 점수</p>
               <ScoreBadge score={m.score} />
               <p className="text-base text-gray-400 mt-1">/ 6점</p>
             </div>

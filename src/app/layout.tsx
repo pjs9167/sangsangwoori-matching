@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-white text-gray-900">
+      <body className="min-h-full flex flex-col bg-white text-gray-900 text-lg">
         <header className="bg-blue-700 text-white shadow-md">
           <nav className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-8">
             <span className="text-2xl font-bold tracking-tight">🤝 상상우리</span>
